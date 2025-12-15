@@ -28,17 +28,18 @@ const Summary = ({ feedback }: { feedback: Feedback }) => {
                 <ScoreGauge score={feedback.overallScore} />
 
                 <div className="flex flex-col gap-2">
-                    <h2 className="text-2xl font-bold">Your Resume Score</h2>
+                    <h2 className="text-2xl font-bold">Your Prescription Score</h2>
                     <p className="text-sm text-gray-500">
-                        This score is calculated based on the variables listed below.
+                        This score is calculated based on the health variables listed below.
                     </p>
                 </div>
             </div>
 
-            <Category title="Tone & Style" score={feedback.toneAndStyle.score} />
-            <Category title="Content" score={feedback.content.score} />
-            <Category title="Structure" score={feedback.structure.score} />
-            <Category title="Skills" score={feedback.skills.score} />
+            <Category title="Medications" score={feedback.medications.score} />
+            <Category title="Dosage" score={feedback.dosage.score} />
+            <Category title="Instructions" score={feedback.instructions.score} />
+            <Category title="Side Effects" score={feedback.sideEffects.score} />
+            <Category title="Lifestyle" score={feedback.lifestyle.score} />
         </div>
     )
 }

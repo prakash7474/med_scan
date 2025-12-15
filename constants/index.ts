@@ -1,241 +1,175 @@
-export const resumes: Resume[] = [
+export const prescriptions: Prescription[] = [
     {
         id: "1",
-        companyName: "Google",
-        jobTitle: "Frontend Developer",
-        imagePath: "/images/resume_01.png",
-        resumePath: "/resumes/resume-1.pdf",
+        patientName: "Alice Johnson",
+        doctorName: "Dr. Smith",
+        imagePath: "/images/prescription_01.png",
+        prescriptionPath: "/prescriptions/prescription-1.pdf",
         feedback: {
             overallScore: 85,
-            ATS: {
+            medications: {
                 score: 90,
                 tips: [],
             },
-            toneAndStyle: {
+            dosage: {
                 score: 90,
                 tips: [],
             },
-            content: {
+            instructions: {
                 score: 90,
                 tips: [],
             },
-            structure: {
+            sideEffects: {
                 score: 90,
                 tips: [],
             },
-            skills: {
+            lifestyle: {
                 score: 90,
+                tips: [],
+            },
+            healthCompliance: {
+                score: 85,
                 tips: [],
             },
         },
     },
     {
         id: "2",
-        companyName: "Microsoft",
-        jobTitle: "Cloud Engineer",
-        imagePath: "/images/resume_02.png",
-        resumePath: "/resumes/resume-2.pdf",
+        patientName: "Jane Smith",
+        doctorName: "Dr. Johnson",
+        imagePath: "/images/prescription_02.png",
+        prescriptionPath: "/prescriptions/prescription-2.pdf",
         feedback: {
             overallScore: 55,
-            ATS: {
+            medications: {
                 score: 90,
                 tips: [],
             },
-            toneAndStyle: {
+            dosage: {
                 score: 90,
                 tips: [],
             },
-            content: {
+            instructions: {
                 score: 90,
                 tips: [],
             },
-            structure: {
+            sideEffects: {
                 score: 90,
                 tips: [],
             },
-            skills: {
+            lifestyle: {
                 score: 90,
+                tips: [],
+            },
+            healthCompliance: {
+                score: 55,
                 tips: [],
             },
         },
     },
     {
         id: "3",
-        companyName: "Apple",
-        jobTitle: "iOS Developer",
-        imagePath: "/images/resume_03.png",
-        resumePath: "/resumes/resume-3.pdf",
+        patientName: "Bob Wilson",
+        doctorName: "Dr. Lee",
+        imagePath: "/images/prescription_03.png",
+        prescriptionPath: "/prescriptions/prescription-3.pdf",
         feedback: {
             overallScore: 75,
-            ATS: {
+            medications: {
                 score: 90,
                 tips: [],
             },
-            toneAndStyle: {
+            dosage: {
                 score: 90,
                 tips: [],
             },
-            content: {
+            instructions: {
                 score: 90,
                 tips: [],
             },
-            structure: {
+            sideEffects: {
                 score: 90,
                 tips: [],
             },
-            skills: {
+            lifestyle: {
                 score: 90,
                 tips: [],
             },
-        },
-    },
-    {
-        id: "4",
-        companyName: "Google",
-        jobTitle: "Frontend Developer",
-        imagePath: "/images/resume_01.png",
-        resumePath: "/resumes/resume-1.pdf",
-        feedback: {
-            overallScore: 85,
-            ATS: {
-                score: 90,
-                tips: [],
-            },
-            toneAndStyle: {
-                score: 90,
-                tips: [],
-            },
-            content: {
-                score: 90,
-                tips: [],
-            },
-            structure: {
-                score: 90,
-                tips: [],
-            },
-            skills: {
-                score: 90,
-                tips: [],
-            },
-        },
-    },
-    {
-        id: "5",
-        companyName: "Microsoft",
-        jobTitle: "Cloud Engineer",
-        imagePath: "/images/resume_02.png",
-        resumePath: "/resumes/resume-2.pdf",
-        feedback: {
-            overallScore: 55,
-            ATS: {
-                score: 90,
-                tips: [],
-            },
-            toneAndStyle: {
-                score: 90,
-                tips: [],
-            },
-            content: {
-                score: 90,
-                tips: [],
-            },
-            structure: {
-                score: 90,
-                tips: [],
-            },
-            skills: {
-                score: 90,
-                tips: [],
-            },
-        },
-    },
-    {
-        id: "6",
-        companyName: "Apple",
-        jobTitle: "iOS Developer",
-        imagePath: "/images/resume_03.png",
-        resumePath: "/resumes/resume-3.pdf",
-        feedback: {
-            overallScore: 75,
-            ATS: {
-                score: 90,
-                tips: [],
-            },
-            toneAndStyle: {
-                score: 90,
-                tips: [],
-            },
-            content: {
-                score: 90,
-                tips: [],
-            },
-            structure: {
-                score: 90,
-                tips: [],
-            },
-            skills: {
-                score: 90,
+            healthCompliance: {
+                score: 75,
                 tips: [],
             },
         },
     },
 ];
 
-export const AIResponseFormat = `
-      interface Feedback {
-      overallScore: number; //max 100
-      ATS: {
-        score: number; //rate based on ATS suitability
-        tips: {
-          type: "good" | "improve";
-          tip: string; //give 3-4 tips
-        }[];
-      };
-      toneAndStyle: {
-        score: number; //max 100
-        tips: {
-          type: "good" | "improve";
-          tip: string; //make it a short "title" for the actual explanation
-          explanation: string; //explain in detail here
-        }[]; //give 3-4 tips
-      };
-      content: {
-        score: number; //max 100
-        tips: {
-          type: "good" | "improve";
-          tip: string; //make it a short "title" for the actual explanation
-          explanation: string; //explain in detail here
-        }[]; //give 3-4 tips
-      };
-      structure: {
-        score: number; //max 100
-        tips: {
-          type: "good" | "improve";
-          tip: string; //make it a short "title" for the actual explanation
-          explanation: string; //explain in detail here
-        }[]; //give 3-4 tips
-      };
-      skills: {
-        score: number; //max 100
-        tips: {
-          type: "good" | "improve";
-          tip: string; //make it a short "title" for the actual explanation
-          explanation: string; //explain in detail here
-        }[]; //give 3-4 tips
-      };
-    }`;
+export const prepareInstructions = ({patientName, doctorName, symptoms}: { patientName: string; doctorName: string; symptoms: string; }) =>
+        `You are an expert in prescription analysis and healthcare advice.
+Please analyze the provided prescription image/text and return a structured JSON object that strictly follows the 'Feedback' interface shown below (do not add any extra properties or wrapper text):
 
-export const prepareInstructions = ({jobTitle, jobDescription}: { jobTitle: string; jobDescription: string; }) =>
-    `You are an expert in ATS (Applicant Tracking System) and resume analysis.
-      Please analyze and rate this resume and suggest how to improve it.
-      The rating can be low if the resume is bad.
-      Be thorough and detailed. Don't be afraid to point out any mistakes or areas for improvement.
-      If there is a lot to improve, don't hesitate to give low scores. This is to help the user to improve their resume.
-      If available, use the job description for the job user is applying to to give more detailed feedback.
-      If provided, take the job description into consideration.
-      The job title is: ${jobTitle}
-      The job description is: ${jobDescription}
-      Provide the feedback using the following format:
-      ${AIResponseFormat}
-      Return the analysis as an JSON object, without any other text and without the backticks.
-      Do not include any other text or comments.`;
+interface Feedback {
+    overallScore: number;
+    medications: {
+        score: number;
+        tips: {
+            type: "good" | "improve";
+            tip: string;
+            explanation?: string;
+        }[];
+    };
+    dosage: {
+        score: number;
+        tips: {
+            type: "good" | "improve";
+            tip: string;
+            explanation?: string;
+        }[];
+    };
+    instructions: {
+        score: number;
+        tips: {
+            type: "good" | "improve";
+            tip: string;
+            explanation?: string;
+        }[];
+    };
+    sideEffects: {
+        score: number;
+        tips: {
+            type: "good" | "improve";
+            tip: string;
+            explanation?: string;
+        }[];
+    };
+    lifestyle: {
+        score: number;
+        tips: {
+            type: "good" | "improve";
+            tip: string;
+            explanation?: string;
+        }[];
+    };
+    healthCompliance: {
+        score: number;
+        tips: {
+            type: "good" | "improve";
+            tip: string;
+        }[];
+    };
+}
+
+Scoring guidance:
+- Use 0-100 numeric scores for each category.
+- Be honest and specific: lower scores are acceptable when issues are present.
+- If information is missing (e.g. dose not specified), reflect that in the score and tips.
+
+Content guidance:
+- For each category, provide 2-4 tips. Use type "good" for positive observations and type "improve" for actionable suggestions.
+- Include explanation text for "improve" tips describing why and how to improve.
+
+Context (use when helpful):
+Patient name: ${patientName}
+Doctor name: ${doctorName}
+Symptoms / context: ${symptoms}
+
+Return only valid JSON (no markdown, no backticks, no commentary).`;

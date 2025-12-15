@@ -1,51 +1,59 @@
-interface Resume {
+interface Prescription {
     id: string;
-    companyName?: string;
-    jobTitle?: string;
+    patientName?: string;
+    doctorName?: string;
     imagePath: string;
-    resumePath: string;
+    prescriptionPath: string;
     feedback: Feedback;
 }
 
 interface Feedback {
     overallScore: number;
-    ATS: {
+    medications: {
         score: number;
         tips: {
             type: "good" | "improve";
             tip: string;
+            explanation?: string;
         }[];
     };
-    toneAndStyle: {
+    dosage: {
         score: number;
         tips: {
             type: "good" | "improve";
             tip: string;
-            explanation: string;
+            explanation?: string;
         }[];
     };
-    content: {
+    instructions: {
         score: number;
         tips: {
             type: "good" | "improve";
             tip: string;
-            explanation: string;
+            explanation?: string;
         }[];
     };
-    structure: {
+    sideEffects: {
         score: number;
         tips: {
             type: "good" | "improve";
             tip: string;
-            explanation: string;
+            explanation?: string;
         }[];
     };
-    skills: {
+    lifestyle: {
         score: number;
         tips: {
             type: "good" | "improve";
             tip: string;
-            explanation: string;
+            explanation?: string;
+        }[];
+    };
+    healthCompliance: {
+        score: number;
+        tips: {
+            type: "good" | "improve";
+            tip: string;
         }[];
     };
 }

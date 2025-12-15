@@ -13,9 +13,9 @@
   --color-badge-red: #f9e3e2;
   --color-badge-yellow: #fceed8;
 
-  --color-badge-green-text: #254d4a;
+  --color-badge-green-text: #0ecf7c;
   --color-badge-red-text: #752522;
-  --color-badge-yellow-text: #73321b;
+  --color-badge-yellow-text: #0a84ff;
 }
 
 html,
@@ -117,7 +117,7 @@ form {
 }
 
 @utility bg-gradient {
-  background: linear-gradient(to bottom, #f0f4ff 60%, #fa7185cc);
+  background: linear-gradient(to bottom, #e0f2fe 60%, #ffffff);
 }
 
 @utility text-gradient {
@@ -129,12 +129,12 @@ form {
 }
 
 @utility primary-gradient {
-  background: linear-gradient(to bottom, #8e98ff, #606beb);
-  box-shadow: 0px 74px 21px 0px #6678ef00;
+  background: linear-gradient(to bottom, #0A84FF, #0056CC);
+  box-shadow: 0px 74px 21px 0px #0A84FF33;
 }
 
 @utility primary-gradient-hover {
-  background: linear-gradient(to bottom, #717dff, #4957eb);
+  background: linear-gradient(to bottom, #2563eb, #059669);
 }
 
 @utility inset-shadow {
@@ -149,4 +149,29 @@ form {
   to {
     opacity: 1;
   }
+}
+
+/* Dark Mode Styles */
+.dark {
+  --bg-color: #0D1A2E;
+  --text-color: #ffffff;
+  --card-bg: #1a365d;
+  --border-color: #2d3748;
+}
+
+.dark body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+.dark .bg-white {
+  background-color: var(--card-bg);
+}
+
+.dark .text-gray-600 {
+  color: #a0aec0;
+}
+
+.dark .border-gray-200 {
+  border-color: var(--border-color);
 }

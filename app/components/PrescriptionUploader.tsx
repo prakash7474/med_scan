@@ -6,7 +6,7 @@ interface FileUploaderProps {
     onFileSelect?: (file: File | null) => void;
 }
 
-const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
+const PrescriptionUploader = ({ onFileSelect }: FileUploaderProps) => {
     const onDrop = useCallback((acceptedFiles: File[]) => {
         const file = acceptedFiles[0] || null;
 
@@ -18,7 +18,10 @@ const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
     const {getRootProps, getInputProps, isDragActive, acceptedFiles} = useDropzone({
         onDrop,
         multiple: false,
-        accept: { 'application/pdf': ['.pdf']},
+        accept: {
+            'application/pdf': ['.pdf'],
+            'image/*': ['.png', '.jpg', '.jpeg', '.gif', '.bmp']
+        },
         maxSize: maxFileSize,
     })
 
@@ -61,7 +64,7 @@ const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
                                     Click to upload
                                 </span> or drag and drop
                             </p>
-                            <p className="text-lg text-gray-500">PDF (max {formatSize(maxFileSize)})</p>
+                            <p className="text-lg text-gray-500">PDF or Image (max {formatSize(maxFileSize)})</p>
                         </div>
                     )}
                 </div>
@@ -69,4 +72,4 @@ const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
         </div>
     )
 }
-export default FileUploader
+export default PrescriptionUploader

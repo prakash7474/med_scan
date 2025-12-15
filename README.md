@@ -12,7 +12,7 @@
     <img alt="Static Badge" src="https://img.shields.io/badge/Puter.js-181758?style=for-the-badge&logoColor=white">
   </div>
 
-  <h3 align="center">AI Resume Analyzer</h3>
+  <h3 align="center">Healthcare Prescription Analyzer</h3>
 
    <div align="center">
      Build this project step by step with our detailed tutorial on <a href="https://www.youtube.com/watch?v=XUkNR-JfHwo" target="_blank"><b>JavaScript Mastery</b></a> YouTube. Join the JSM family!
@@ -38,7 +38,7 @@ If you prefer visual learning, this is the perfect resource for you. Follow our 
 
 ## <a name="introduction">✨ Introduction</a>
 
-Build an AI-powered Resume Analyzer with React, React Router, and Puter.js! Implement seamless auth, upload and store resumes, and match candidates to jobs using smart AI evaluations. Get custom feedback and ATS scores tailored to each listing—all wrapped in a clean, reusable UI.
+Build an AI-powered Healthcare Prescription Analyzer with React, React Router, and Puter.js! Implement seamless auth, upload and store medical prescriptions, extract key information using OCR, and get AI-powered medicine explanations and health suggestions—all wrapped in a clean, reusable UI.
 
 If you're getting started and need assistance or face any bugs, join our active Discord community with over **50k+** members. It's a place where people help each other out.
 
@@ -66,9 +66,17 @@ If you're getting started and need assistance or face any bugs, join our active 
 
 👉 **Easy & convenient auth**: Handle authentication entirely in the browser using Puter.js—no backend or setup required.
 
-👉 **Resume upload & storage**: Let users upload and store all their resumes in one place, safely and reliably.
+👉 **Prescription upload & storage**: Let users upload and store medical prescriptions (images/PDFs) in one place, safely and reliably.
 
-👉 **AI resume matching**: Provide a job listing and get an ATS score with custom feedback tailored to each resume.
+👉 **OCR text extraction**: Automatically extract key information from prescriptions including patient details, medicines, dosages, and instructions.
+
+👉 **AI medicine explanations**: Get detailed explanations of medications, side effects, interactions, and when/how to take them.
+
+👉 **Health suggestions & lifestyle tips**: Receive personalized diet plans, exercise recommendations, and daily routines based on prescriptions.
+
+👉 **Smart alerts**: Medicine reminders, refill notifications, and follow-up alerts.
+
+👉 **History tracker**: Save and track previous prescriptions with improvement over time.
 
 👉 **Reusable, modern UI**: Built with clean, consistent components for a great-looking and maintainable interface.
 
@@ -95,8 +103,8 @@ Make sure you have the following installed on your machine:
 **Cloning the Repository**
 
 ```bash
-git clone https://github.com/adrianhajdin/ai-resume-analyzer.git
-cd ai-resume-analyzer
+git clone https://github.com/adrianhajdin/healthcare-prescription-analyzer.git
+cd healthcare-prescription-analyzer
 ```
 
 **Installation**

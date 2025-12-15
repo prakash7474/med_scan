@@ -1,42 +1,42 @@
 import type { Route } from "./+types/home";
 import Navbar from "~/components/Navbar";
-import ResumeCard from "~/components/ResumeCard";
+import PrescriptionCard from "~/components/PrescriptionCard";
 import {usePuterStore} from "~/lib/puter";
 import {Link, useNavigate} from "react-router";
 import {useEffect, useState} from "react";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Resumind" },
-    { name: "description", content: "Smart feedback for your dream job!" },
+    { title: "MediScan AI - Smart Prescription AI" },
+    { name: "description", content: "AI-powered prescription analysis and health insights!" },
   ];
 }
 
 export default function Home() {
   const { auth, kv } = usePuterStore();
   const navigate = useNavigate();
-  const [resumes, setResumes] = useState<Resume[]>([]);
-  const [loadingResumes, setLoadingResumes] = useState(false);
+  const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
+  const [loadingPrescriptions, setLoadingPrescriptions] = useState(false);
 
   useEffect(() => {
     if(!auth.isAuthenticated) navigate('/auth?next=/');
   }, [auth.isAuthenticated])
 
   useEffect(() => {
-    const loadResumes = async () => {
-      setLoadingResumes(true);
+    const loadPrescriptions = async () => {
+      setLoadingPrescriptions(true);
 
-      const resumes = (await kv.list('resume:*', true)) as KVItem[];
+      const prescriptions = (await kv.list('prescription:*', true)) as KVItem[];
 
-      const parsedResumes = resumes?.map((resume) => (
-          JSON.parse(resume.value) as Resume
+      const parsedPrescriptions = prescriptions?.map((prescription) => (
+          JSON.parse(prescription.value) as Prescription
       ))
 
-      setResumes(parsedResumes || []);
-      setLoadingResumes(false);
+      setPrescriptions(parsedPrescriptions || []);
+      setLoadingPrescriptions(false);
     }
 
-    loadResumes()
+    loadPrescriptions()
   }, []);
 
   return <main className="bg-[url('/images/bg-main.svg')] bg-cover">
@@ -44,31 +44,31 @@ export default function Home() {
 
     <section className="main-section">
       <div className="page-heading py-16">
-        <h1>Track Your Applications & Resume Ratings</h1>
-        {!loadingResumes && resumes?.length === 0 ? (
-            <h2>No resumes found. Upload your first resume to get feedback.</h2>
+        <h1>Smart Prescription AI</h1>
+        {!loadingPrescriptions && prescriptions?.length === 0 ? (
+            <h2>Scan. Understand. Stay Healthy.</h2>
         ): (
-          <h2>Review your submissions and check AI-powered feedback.</h2>
+          <h2>Review your prescriptions and check AI-powered health feedback.</h2>
         )}
       </div>
-      {loadingResumes && (
+      {loadingPrescriptions && (
           <div className="flex flex-col items-center justify-center">
-            <img src="/images/resume-scan-2.gif" className="w-[200px]" />
+            <img src="/images/pdf.png" className="w-[200px]" />
           </div>
       )}
 
-      {!loadingResumes && resumes.length > 0 && (
-        <div className="resumes-section">
-          {resumes.map((resume) => (
-              <ResumeCard key={resume.id} resume={resume} />
+      {!loadingPrescriptions && prescriptions.length > 0 && (
+        <div className="prescriptions-section">
+          {prescriptions.map((prescription) => (
+              <PrescriptionCard key={prescription.id} prescription={prescription} />
           ))}
         </div>
       )}
 
-      {!loadingResumes && resumes?.length === 0 && (
+      {!loadingPrescriptions && prescriptions?.length === 0 && (
           <div className="flex flex-col items-center justify-center mt-10 gap-4">
             <Link to="/upload" className="primary-button w-fit text-xl font-semibold">
-              Upload Resume
+              Upload Prescription
             </Link>
           </div>
       )}
