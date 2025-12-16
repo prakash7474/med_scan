@@ -8,7 +8,7 @@ const LifestyleTips = () => {
         {
             icon: '🍽',
             title: 'Eat Light Foods',
-            description: 'Choose soft, easily digestible foods like soups, yogurt, and boiled vegetables.'
+            description: 'Choose soft, easily digestible foods like dal, khichdi, curd, and boiled vegetables.'
         },
         {
             icon: '🚫',

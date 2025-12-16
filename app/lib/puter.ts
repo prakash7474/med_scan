@@ -289,7 +289,13 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             setError("Puter.js not available");
             return;
         }
-        return puter.fs.read(path);
+        try {
+            return await puter.fs.read(path);
+        } catch (error) {
+            console.error('Failed to read file:', error);
+            setError("Failed to read file");
+            return;
+        }
     };
 
     const upload = async (files: File[] | Blob[]) => {

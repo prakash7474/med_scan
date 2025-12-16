@@ -26,14 +26,20 @@ export default function Home() {
     const loadPrescriptions = async () => {
       setLoadingPrescriptions(true);
 
-      const prescriptions = (await kv.list('prescription:*', true)) as KVItem[];
+      try {
+        const prescriptions = (await kv.list('prescription:*', true)) as KVItem[];
 
-      const parsedPrescriptions = prescriptions?.map((prescription) => (
-          JSON.parse(prescription.value) as Prescription
-      ))
+        const parsedPrescriptions = prescriptions?.map((prescription) => (
+            JSON.parse(prescription.value) as Prescription
+        ))
 
-      setPrescriptions(parsedPrescriptions || []);
-      setLoadingPrescriptions(false);
+        setPrescriptions(parsedPrescriptions || []);
+      } catch (error) {
+        console.error('Failed to load prescriptions:', error);
+        setPrescriptions([]);
+      } finally {
+        setLoadingPrescriptions(false);
+      }
     }
 
     loadPrescriptions()
