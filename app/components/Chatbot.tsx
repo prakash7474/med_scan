@@ -1,26 +1,40 @@
 import { useState } from "react";
+import { usePuterStore } from "~/lib/puter";
 
 const Chatbot = () => {
+    const { ai } = usePuterStore();
     const [messages, setMessages] = useState([
         { type: 'bot', text: 'Hi! I\'m your MediScan AI assistant. Ask me anything about your prescription!' },
         { type: 'bot', text: 'Try: "Explain Paracetamol" or "Is this safe for headaches?"' }
     ]);
     const [input, setInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSend = () => {
-        if (!input.trim()) return;
+    const handleSend = async () => {
+        if (!input.trim() || isLoading) return;
 
-        const newMessages = [...messages, { type: 'user', text: input }];
+        const userMessage = input.trim();
+        const newMessages = [...messages, { type: 'user', text: userMessage }];
         setMessages(newMessages);
         setInput('');
+        setIsLoading(true);
 
-        // Simulate bot response
-        setTimeout(() => {
-            setMessages([...newMessages, {
-                type: 'bot',
-                text: 'I\'m analyzing your question. For detailed medical advice, please consult your doctor. This is for informational purposes only.'
-            }]);
-        }, 1000);
+        try {
+            const response = await ai.chat(userMessage);
+            if (response && response.message && response.message.content) {
+                const botText = typeof response.message.content === 'string'
+                    ? response.message.content
+                    : response.message.content.map(c => c.text || '').join(' ');
+                setMessages([...newMessages, { type: 'bot', text: botText }]);
+            } else {
+                setMessages([...newMessages, { type: 'bot', text: 'Sorry, I couldn\'t generate a response. Please try again.' }]);
+            }
+        } catch (error) {
+            console.error('Chat error:', error);
+            setMessages([...newMessages, { type: 'bot', text: 'An error occurred. Please try again later.' }]);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

@@ -1,4 +1,4 @@
-const LifestyleTips = () => {
+const LifestyleTips = ({ aiResponse }: { aiResponse: string }) => {
     const tips = [
         {
             icon: '💧',

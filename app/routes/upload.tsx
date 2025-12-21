@@ -1,11 +1,11 @@
-import {type FormEvent, useState} from 'react'
+import { type FormEvent, useState } from 'react';
 import Navbar from "~/components/Navbar";
 import PrescriptionUploader from "~/components/PrescriptionUploader";
-import {usePuterStore} from "~/lib/puter";
-import {useNavigate} from "react-router";
-import {convertPdfToImage} from "~/lib/pdf2img";
-import {generateUUID} from "~/lib/utils";
-import {prepareInstructions} from "../../constants";
+import { usePuterStore } from "~/lib/puter";
+import { useNavigate } from "react-router";
+import { convertPdfToImage } from "~/lib/pdf2img";
+import { generateUUID } from "~/lib/utils";
+import { prepareInstructions } from "../../constants";
 
 const Upload = () => {
     const { auth, isLoading, fs, ai, kv } = usePuterStore();
@@ -14,35 +14,41 @@ const Upload = () => {
     const [statusText, setStatusText] = useState('');
     const [file, setFile] = useState<File | null>(null);
 
-    const handleFileSelect = (file: File | null) => {
-        setFile(file)
+    // Check authentication and redirect if not authenticated
+    if (!isLoading && !auth.isAuthenticated) {
+        navigate('/auth?next=/home');
+        return null;
     }
 
-    const handleAnalyze = async ({ patientName, doctorName, symptoms, file }: { patientName: string, doctorName: string, symptoms: string, file: File  }) => {
+    const handleFileSelect = (file: File | null) => {
+        setFile(file);
+    };
+
+    const handleAnalyze = async ({ patientName, doctorName, symptoms, file }: { patientName: string; doctorName: string; symptoms: string; file: File }) => {
         setIsProcessing(true);
-
         setStatusText('Uploading the file...');
-        const uploadedFile = await fs.upload([file]);
-        if(!uploadedFile) return setStatusText('Error: Failed to upload file');
 
-        setStatusText('Converting to image...');
-        const imageFile = await convertPdfToImage(file);
-        if(!imageFile.file) return setStatusText('Error: Failed to convert PDF to image');
-
-        setStatusText('Uploading the image...');
-        const uploadedImage = await fs.upload([imageFile.file]);
-        if(!uploadedImage) return setStatusText('Error: Failed to upload image');
-
-        setStatusText('Preparing data...');
-        const uuid = generateUUID();
-        let feedbackData: Feedback;
-
-        setStatusText('Analyzing...');
+        let uploadedFile: any = null;
+        let uploadedImage: any = null;
+        let uuid = generateUUID();
+        let feedbackData: any = null;
+        let aiResponse = '';
 
         try {
-            // Add timeout for AI analysis
+            uploadedFile = await fs.upload([file]);
+            if (!uploadedFile) throw new Error('Failed to upload file');
+
+            setStatusText('Converting to image...');
+            const imageFile = await convertPdfToImage(file);
+            if (!imageFile.file) throw new Error('Failed to convert PDF to image');
+
+            setStatusText('Uploading the image...');
+            uploadedImage = await fs.upload([imageFile.file]);
+            if (!uploadedImage) throw new Error('Failed to upload image');
+
+            setStatusText('Analyzing...');
             const feedbackPromise = ai.feedback(
-                uploadedFile.path,
+                uploadedImage.path,
                 prepareInstructions({ patientName, doctorName, symptoms })
             );
 
@@ -52,92 +58,96 @@ const Upload = () => {
 
             const feedback: any = await Promise.race([feedbackPromise, timeoutPromise]);
 
+            console.log('AI feedback response:', feedback);
+
             if (!feedback || !feedback.message) throw new Error('No feedback received');
 
-            const feedbackText = typeof feedback.message.content === 'string'
-                ? feedback.message.content
-                : feedback.message.content[0].text;
+            let feedbackText = '';
+            if (typeof feedback.message.content === 'string') {
+                feedbackText = feedback.message.content;
+            } else if (Array.isArray(feedback.message.content) && feedback.message.content.length > 0) {
+                const firstContent = feedback.message.content[0];
+                if (typeof firstContent === 'string') {
+                    feedbackText = firstContent;
+                } else if (firstContent && typeof firstContent.text === 'string') {
+                    feedbackText = firstContent.text;
+                } else {
+                    throw new Error('Invalid feedback content structure');
+                }
+            } else {
+                // Handle case where content might be directly in feedback object
+                if (typeof feedback.content === 'string') {
+                    feedbackText = feedback.content;
+                } else if (Array.isArray(feedback.content) && feedback.content.length > 0) {
+                    const firstContent = feedback.content[0];
+                    if (typeof firstContent === 'string') {
+                        feedbackText = firstContent;
+                    } else if (firstContent && typeof firstContent.text === 'string') {
+                        feedbackText = firstContent.text;
+                    } else {
+                        throw new Error('Invalid feedback content structure');
+                    }
+                } else {
+                    throw new Error('Invalid feedback content type');
+                }
+            }
 
             feedbackData = JSON.parse(feedbackText);
+            aiResponse = feedbackText;
         } catch (error) {
-            console.warn('AI analysis failed, using sample data:', error);
-            setStatusText('AI analysis unavailable, using sample analysis...');
-
-            // Fallback to sample data
+            console.error('Analysis failed:', error);
+            // Create default feedback if AI analysis fails
             feedbackData = {
-                overallScore: 80,
-                medications: {
-                    score: 85,
-                    tips: [
-                        { type: "good", tip: "Clear medication names specified" },
-                        { type: "improve", tip: "Consider generic alternatives for cost savings", explanation: "Generic medications contain the same active ingredients but are typically more affordable" }
-                    ]
-                },
-                dosage: {
-                    score: 75,
-                    tips: [
-                        { type: "good", tip: "Dosage instructions are clear" },
-                        { type: "improve", tip: "Take with food to reduce stomach irritation", explanation: "Taking medication with food can help prevent nausea and stomach upset" }
-                    ]
-                },
-                instructions: {
-                    score: 80,
-                    tips: [
-                        { type: "good", tip: "Timing instructions are provided" },
-                        { type: "improve", tip: "Set phone reminders for consistent dosing", explanation: "Regular reminders help maintain medication adherence" }
-                    ]
-                },
-                sideEffects: {
-                    score: 70,
-                    tips: [
-                        { type: "good", tip: "Common side effects listed" },
-                        { type: "improve", tip: "Monitor for dizziness, especially when driving", explanation: "Some medications can cause drowsiness - avoid operating vehicles until you know how it affects you" }
-                    ]
-                },
-                lifestyle: {
-                    score: 85,
-                    tips: [
-                        { type: "good", tip: "Stay hydrated while taking medication" },
-                        { type: "improve", tip: "Light exercise like walking can support recovery", explanation: "Regular moderate exercise can improve overall health and medication effectiveness" }
-                    ]
-                },
-                healthCompliance: {
-                    score: 80,
-                    tips: [
-                        { type: "good", tip: "Regular check-ups recommended" },
-                        { type: "improve", tip: "Keep a medication journal" }
-                    ]
-                }
+                overallScore: 0,
+                medications: { score: 0, tips: [] },
+                dosage: { score: 0, tips: [] },
+                instructions: { score: 0, tips: [] },
+                sideEffects: { score: 0, tips: [] },
+                lifestyle: { score: 0, tips: [] },
+                healthCompliance: { score: 0, tips: [] },
             };
+            aiResponse = `Analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`;
         }
 
+        // Always save data and navigate, even on error
         const data = {
             id: uuid,
-            prescriptionPath: uploadedFile.path,
-            imagePath: uploadedImage.path,
-            patientName, doctorName, symptoms,
+            prescriptionPath: uploadedFile?.path || '',
+            imagePath: uploadedImage?.path || '',
+            patientName,
+            doctorName,
+            symptoms,
             feedback: feedbackData,
+            aiResponse,
         };
+
         await kv.set(`prescription:${uuid}`, JSON.stringify(data));
-        setStatusText('Analysis complete, redirecting...');
+        setStatusText('Redirecting...');
         console.log(data);
         navigate(`/prescription/${uuid}`);
-    }
+    };
 
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const form = e.currentTarget.closest('form');
-        if(!form) return;
-        const formData = new FormData(form);
+        const formData = new FormData(e.currentTarget);
 
         const patientName = formData.get('patient-name') as string;
         const doctorName = formData.get('doctor-name') as string;
         const symptoms = formData.get('symptoms') as string;
 
-        if(!file) return;
+        if (!file) {
+            setStatusText('Please select a file first.');
+            return;
+        }
 
         handleAnalyze({ patientName, doctorName, symptoms, file });
-    }
+    };
+
+    const triggerFileInput = () => {
+        const input = document.querySelector('input[type="file"]') as HTMLInputElement | null;
+        input?.click();
+    };
+    
 
     return (
         <main className="bg-[url('/images/bg-main.svg')] bg-cover">
@@ -145,53 +155,68 @@ const Upload = () => {
 
             <section className="main-section">
                 <div className="page-heading py-16">
-                            <h1>MediScan AI - Prescription Analysis</h1>
+                    <h1>MediScan AI - Prescription Analysis</h1>
                     {isProcessing ? (
                         <>
                             <h2>{statusText}</h2>
-                            <img src="/images/pdf.png" className="w-full" />
+                            <div className="flex flex-col items-center justify-center p-8">
+                                <p className="text-gray-500 text-lg">Processing your prescription...</p>
+                            </div>
                         </>
                     ) : (
-                            <h2>Upload your doctor's prescription for instant analysis</h2>
+                        <h2>Upload your doctor's prescription for instant analysis</h2>
                     )}
                     {!isProcessing && (
                         <form id="upload-form" onSubmit={handleSubmit} className="flex flex-col gap-4 mt-8">
                             <div className="form-div">
                                 <label htmlFor="patient-name">Patient Name</label>
-                                <input type="text" name="patient-name" placeholder="Patient Name" id="patient-name" />
+                                <input
+                                    type="text"
+                                    name="patient-name"
+                                    placeholder="Patient Name"
+                                    id="patient-name"
+                                    required
+                                />
                             </div>
                             <div className="form-div">
                                 <label htmlFor="doctor-name">Doctor Name</label>
-                                <input type="text" name="doctor-name" placeholder="Doctor Name" id="doctor-name" />
+                                <input
+                                    type="text"
+                                    name="doctor-name"
+                                    placeholder="Doctor Name"
+                                    id="doctor-name"
+                                    required
+                                />
                             </div>
                             <div className="form-div">
                                 <label htmlFor="symptoms">Symptoms/Notes</label>
-                                <textarea rows={5} name="symptoms" placeholder="Describe symptoms or additional notes" id="symptoms" />
+                                <textarea
+                                    rows={5}
+                                    name="symptoms"
+                                    placeholder="Describe symptoms or additional notes"
+                                    id="symptoms"
+                                />
                             </div>
 
                             <div className="form-div">
-                            <label htmlFor="uploader">Upload Prescription</label>
-                            <PrescriptionUploader onFileSelect={handleFileSelect} />
-                            <div className="flex gap-4 mt-4">
-                                <button
-                                    className="primary-button flex-1"
-                                    onClick={() => {
-                                        const input = document.querySelector('input[type="file"]') as HTMLInputElement | null;
-                                        input?.click();
-                                    }}
-                                >
-                                    📷 Take Photo
-                                </button>
-                                <button
-                                    className="primary-button flex-1"
-                                    onClick={() => {
-                                        const input = document.querySelector('input[type="file"]') as HTMLInputElement | null;
-                                        input?.click();
-                                    }}
-                                >
-                                    📁 Choose File
-                                </button>
-                            </div>
+                                <label htmlFor="uploader">Upload Prescription</label>
+                                <PrescriptionUploader onFileSelect={handleFileSelect} />
+                                <div className="flex gap-4 mt-4">
+                                    <button
+                                        type="button"
+                                        className="primary-button flex-1"
+                                        onClick={triggerFileInput}
+                                    >
+                                        📷 Take Photo
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="primary-button flex-1"
+                                        onClick={triggerFileInput}
+                                    >
+                                        📁 Choose File
+                                    </button>
+                                </div>
                             </div>
 
                             <button className="primary-button" type="submit">
@@ -202,6 +227,7 @@ const Upload = () => {
                 </div>
             </section>
         </main>
-    )
-}
-export default Upload
+    );
+};
+
+export default Upload;

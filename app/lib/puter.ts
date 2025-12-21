@@ -75,7 +75,7 @@ interface PuterStore {
         feedback: (
             path: string,
             message: string
-        ) => Promise<AIResponse | undefined>;
+        ) => Promise<Object>;
         img2txt: (
             image: string | File | Blob,
             testMode?: boolean
@@ -304,7 +304,13 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             setError("Puter.js not available");
             return;
         }
-        return puter.fs.upload(files);
+        try {
+            return await puter.fs.upload(files);
+        } catch (error) {
+            console.error('Upload failed:', error);
+            setError("Failed to upload file");
+            return;
+        }
     };
 
     const deleteFile = async (path: string) => {
@@ -327,10 +333,20 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             setError("Puter.js not available");
             return;
         }
-        // return puter.ai.chat(prompt, imageURL, testMode, options);
-        return puter.ai.chat(prompt, imageURL, testMode, options) as Promise<
-            AIResponse | undefined
-        >;
+
+        try {
+            if (typeof imageURL === 'string') {
+                return await puter.ai.chat(prompt, imageURL, testMode, options) as Promise<AIResponse | undefined>;
+            } else {
+                // imageURL is PuterChatOptions, so pass it as options
+                const chatOptions = imageURL || options;
+                return await puter.ai.chat(prompt, undefined, testMode, chatOptions) as Promise<AIResponse | undefined>;
+            }
+        } catch (error) {
+            console.error('Chat failed:', error);
+            setError("Failed to chat");
+            return;
+        }
     };
 
     const feedback = async (path: string, message: string) => {
@@ -340,24 +356,14 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             return;
         }
 
-        return puter.ai.chat(
-            [
-                {
-                    role: "user",
-                    content: [
-                        {
-                            type: "file",
-                            puter_path: path,
-                        },
-                        {
-                            type: "text",
-                            text: message,
-                        },
-                    ],
-                },
-            ],
-            { model: "claude-3-7-sonnet" }
-        ) as Promise<AIResponse | undefined>;
+        try {
+            // Use chat with image URL directly
+            return await puter.ai.chat(message, path, undefined, { model: "claude-3-7-sonnet" });
+        } catch (error) {
+            console.error('Feedback failed:', error);
+            setError("Failed to get feedback");
+            return;
+        }
     };
 
     const img2txt = async (image: string | File | Blob, testMode?: boolean) => {

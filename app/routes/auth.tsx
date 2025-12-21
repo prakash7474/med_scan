@@ -14,7 +14,7 @@ const Auth = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if(auth.isAuthenticated) navigate(next || '/');
+        if(auth.isAuthenticated) navigate(next || '/home');
     }, [auth.isAuthenticated, next])
 
     return (

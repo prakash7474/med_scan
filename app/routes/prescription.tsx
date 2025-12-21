@@ -1,9 +1,7 @@
 import {Link, useNavigate, useParams} from "react-router";
 import {useEffect, useState} from "react";
 import {usePuterStore} from "~/lib/puter";
-import Summary from "~/components/Summary";
-import HealthCompliance from "~/components/HealthCompliance";
-import Details from "~/components/Details";
+import LifestyleTips from "~/components/LifestyleTips";
 
 export const meta = () => ([
     { title: 'MediScan AI | Prescription Review' },
@@ -15,34 +13,48 @@ const Prescription = () => {
     const { id } = useParams();
     const [imageUrl, setImageUrl] = useState('');
     const [prescriptionUrl, setPrescriptionUrl] = useState('');
-    const [feedback, setFeedback] = useState<Feedback | null>(null);
+    const [aiResponse, setAiResponse] = useState('');
+    const [feedback, setFeedback] = useState<any>(null);
+    const [showLifestyle, setShowLifestyle] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
-        if(!isLoading && !auth.isAuthenticated) navigate(`/auth?next=/prescription/${id}`);
+        if(!isLoading && !auth.isAuthenticated) navigate('/auth?next=/home');
     }, [isLoading])
 
     useEffect(() => {
         const loadPrescription = async () => {
+            console.log('Loading prescription with ID:', id);
             const prescription = await kv.get(`prescription:${id}`);
 
-            if(!prescription) return;
+            if(!prescription) {
+                console.error('No prescription found for ID:', id);
+                return;
+            }
 
             const data = JSON.parse(prescription);
+            console.log('Parsed prescription data:', data);
 
             const prescriptionBlob = await fs.read(data.prescriptionPath);
-            if(!prescriptionBlob) return;
+            if(!prescriptionBlob) {
+                console.error('Failed to read prescription file');
+                return;
+            }
 
             const pdfBlob = new Blob([prescriptionBlob], { type: 'application/pdf' });
             const prescriptionUrl = URL.createObjectURL(pdfBlob);
             setPrescriptionUrl(prescriptionUrl);
 
             const imageBlob = await fs.read(data.imagePath);
-            if(!imageBlob) return;
+            if(!imageBlob) {
+                console.error('Failed to read image file');
+                return;
+            }
             const imageUrl = URL.createObjectURL(imageBlob);
             setImageUrl(imageUrl);
 
-            setFeedback(data.feedback);
+            console.log('Setting feedback:', data.feedback);
+            setAiResponse(data.aiResponse || '');
 
         }
 
@@ -52,9 +64,12 @@ const Prescription = () => {
     return (
         <main className="!pt-0">
             <nav className="prescription-nav">
-                <Link to="/" className="back-button">
+                <Link to="/home" className="back-button">
                     <img src="/icons/back.svg" alt="logo" className="w-2.5 h-2.5" />
                     <span className="text-gray-800 text-sm font-semibold">Back to Homepage</span>
+                </Link>
+                <Link to="/upload" className="primary-button w-fit">
+                    Upload Prescription
                 </Link>
             </nav>
             <div className="flex flex-row w-full max-lg:flex-col-reverse">
@@ -73,17 +88,49 @@ const Prescription = () => {
                 </section>
                 <section className="feedback-section">
                     <h2 className="text-4xl !text-black font-bold">Prescription Review</h2>
-                    {feedback ? (
+                    {aiResponse ? (
                         <div className="flex flex-col gap-8 animate-in fade-in duration-1000">
-                            <Summary feedback={feedback} />
-                            <HealthCompliance score={feedback.healthCompliance.score} suggestions={feedback.healthCompliance.tips} />
-                            <Details feedback={feedback} />
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h3 className="text-xl font-semibold mb-4">AI Response</h3>
+                                <pre className="whitespace-pre-wrap text-sm text-gray-700">{aiResponse}</pre>
+                            </div>
+
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h3 className="text-xl font-semibold mb-4">Explore More</h3>
+                                <div className="flex flex-wrap gap-4">
+                                    <img
+                                        src="/images/lifestyle.png"
+                                        alt="Lifestyle Tips"
+                                        className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity"
+                                        onClick={() => setShowLifestyle(!showLifestyle)}
+                                    />
+                                    <Link to="/how-it-works" className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                                        How It Works
+                                    </Link>
+                                </div>
+                            </div>
                         </div>
                     ) : (
-                        <img src="/images/pdf.png" className="w-full" />
+                        <div className="flex flex-col items-center justify-center p-8">
+                            <p className="text-gray-500 text-lg">Loading prescription analysis...</p>
+                        </div>
                     )}
                 </section>
             </div>
+
+            {showLifestyle && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full">
+                        <button
+                            onClick={() => setShowLifestyle(false)}
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600 transition-colors z-10"
+                        >
+                            ×
+                        </button>
+                        <LifestyleTips aiResponse={aiResponse} />
+                    </div>
+                </div>
+            )}
         </main>
     )
 }

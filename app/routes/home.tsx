@@ -13,17 +13,19 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const { auth, kv } = usePuterStore();
+  const { auth, kv, puterReady, error } = usePuterStore();
   const navigate = useNavigate();
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([]);
   const [loadingPrescriptions, setLoadingPrescriptions] = useState(false);
 
   useEffect(() => {
-    if(!auth.isAuthenticated) navigate('/auth?next=/');
-  }, [auth.isAuthenticated])
+    if (puterReady && !auth.isAuthenticated) navigate('/auth?next=/home');
+  }, [auth.isAuthenticated, puterReady])
 
   useEffect(() => {
     const loadPrescriptions = async () => {
+      if (!puterReady) return;
+
       setLoadingPrescriptions(true);
 
       try {
@@ -42,8 +44,10 @@ export default function Home() {
       }
     }
 
-    loadPrescriptions()
-  }, []);
+    if (puterReady) {
+      loadPrescriptions()
+    }
+  }, [puterReady]);
 
   return <main className="bg-[url('/images/bg-main.svg')] bg-cover">
     <Navbar />
@@ -59,7 +63,9 @@ export default function Home() {
       </div>
       {loadingPrescriptions && (
           <div className="flex flex-col items-center justify-center">
-            <img src="/images/pdf.png" className="w-[200px]" />
+            <div className="flex flex-col items-center justify-center p-8">
+              <p className="text-gray-500 text-lg">Loading your prescriptions...</p>
+            </div>
           </div>
       )}
 
