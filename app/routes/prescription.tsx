@@ -16,6 +16,7 @@ const Prescription = () => {
     const [aiResponse, setAiResponse] = useState('');
     const [feedback, setFeedback] = useState<any>(null);
     const [showLifestyle, setShowLifestyle] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -54,6 +55,7 @@ const Prescription = () => {
             setImageUrl(imageUrl);
 
             console.log('Setting feedback:', data.feedback);
+            setFeedback(data.feedback);
             setAiResponse(data.aiResponse || '');
 
         }
@@ -67,9 +69,6 @@ const Prescription = () => {
                 <Link to="/home" className="back-button">
                     <img src="/icons/back.svg" alt="logo" className="w-2.5 h-2.5" />
                     <span className="text-gray-800 text-sm font-semibold">Back to Homepage</span>
-                </Link>
-                <Link to="/upload" className="primary-button w-fit">
-                    Upload Prescription
                 </Link>
             </nav>
             <div className="flex flex-row w-full max-lg:flex-col-reverse">
@@ -87,26 +86,62 @@ const Prescription = () => {
                     )}
                 </section>
                 <section className="feedback-section">
-                    <h2 className="text-4xl !text-black font-bold">Prescription Review</h2>
-                    {aiResponse ? (
-                        <div className="flex flex-col gap-8 animate-in fade-in duration-1000">
-                            <div className="bg-white p-6 rounded-lg shadow-md">
-                                <h3 className="text-xl font-semibold mb-4">AI Response</h3>
-                                <pre className="whitespace-pre-wrap text-sm text-gray-700">{aiResponse}</pre>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-lg shadow-md">
-                                <h3 className="text-xl font-semibold mb-4">Explore More</h3>
-                                <div className="flex flex-wrap gap-4">
-                                    <img
-                                        src="/images/lifestyle.png"
-                                        alt="Lifestyle Tips"
-                                        className="w-8 h-8 cursor-pointer hover:opacity-80 transition-opacity"
-                                        onClick={() => setShowLifestyle(!showLifestyle)}
-                                    />
-                                    <Link to="/how-it-works" className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">
+                    <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-4xl !text-black font-bold">Prescription Review</h2>
+                        {feedback && (
+                            <div className="bg-white p-4 rounded-lg shadow-md">
+                                <h3 className="text-lg font-semibold mb-3">Explore More</h3>
+                                <div className="flex flex-col gap-3">
+                                    <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setShowLifestyle(!showLifestyle)}>
+                                        <img
+                                            src="/images/lifestyle.png"
+                                            alt="Lifestyle Tips"
+                                            className="w-6 h-6"
+                                        />
+                                        <span className="text-sm font-medium">Lifestyle Tips</span>
+                                    </div>
+                                    <Link to="/how-it-works" className="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm text-center">
                                         How It Works
                                     </Link>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    {error ? (
+                        <div className="flex flex-col items-center justify-center p-8">
+                            <h3 className="text-red-600 text-xl font-semibold mb-4">Error Loading Prescription</h3>
+                            <p className="text-red-500 text-lg mb-4">{error}</p>
+                            <button
+                                className="primary-button"
+                                onClick={() => window.location.reload()}
+                            >
+                                Retry Loading
+                            </button>
+                        </div>
+                    ) : feedback ? (
+                        <div className="animate-in fade-in duration-1000">
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <h3 className="text-xl font-semibold mb-4">AI Analysis Results</h3>
+                                <div className="space-y-4">
+                                    {Object.entries(feedback).map(([category, data]: [string, any]) => (
+                                        <div key={category} className="border rounded-lg p-4">
+                                            <h4 className="font-semibold capitalize text-lg mb-2">{category.replace(/([A-Z])/g, ' $1')}</h4>
+                                            <div className="mb-2">
+                                                <span className="font-medium">Score: </span>
+                                                <span className={`px-2 py-1 rounded text-sm ${data.score >= 80 ? 'bg-green-100 text-green-800' : data.score >= 60 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
+                                                    {data.score}/100
+                                                </span>
+                                            </div>
+                                            <div className="space-y-2">
+                                                {data.tips?.map((tip: any, index: number) => (
+                                                    <div key={index} className={`p-3 rounded border-l-4 ${tip.type === 'good' ? 'border-green-500 bg-green-50' : 'border-yellow-500 bg-yellow-50'}`}>
+                                                        <div className="font-medium text-sm">{tip.type === 'good' ? '✅' : '⚠️'} {tip.tip}</div>
+                                                        {tip.explanation && <div className="text-sm text-gray-600 mt-1">{tip.explanation}</div>}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>

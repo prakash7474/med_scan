@@ -6,7 +6,6 @@ export const prescriptions: Prescription[] = [
         imagePath: "/images/prescription_01.png",
         prescriptionPath: "/prescriptions/prescription-1.pdf",
         feedback: {
-            overallScore: 85,
             medications: {
                 score: 90,
                 tips: [],
@@ -40,7 +39,6 @@ export const prescriptions: Prescription[] = [
         imagePath: "/images/prescription_02.png",
         prescriptionPath: "/prescriptions/prescription-2.pdf",
         feedback: {
-            overallScore: 55,
             medications: {
                 score: 90,
                 tips: [],
@@ -74,7 +72,6 @@ export const prescriptions: Prescription[] = [
         imagePath: "/images/prescription_03.png",
         prescriptionPath: "/prescriptions/prescription-3.pdf",
         feedback: {
-            overallScore: 75,
             medications: {
                 score: 90,
                 tips: [],
@@ -104,72 +101,74 @@ export const prescriptions: Prescription[] = [
 ];
 
 export const prepareInstructions = ({patientName, doctorName, symptoms}: { patientName: string; doctorName: string; symptoms: string; }) =>
-        `You are an expert in prescription analysis and healthcare advice.
-Please analyze the provided prescription image/text and return a structured JSON object that strictly follows the 'Feedback' interface shown below (do not add any extra properties or wrapper text):
+    `You are MediScan AI, a healthcare prescription analyzer. Analyze the uploaded prescription document and provide a comprehensive health assessment.
 
-interface Feedback {
-    overallScore: number;
-    medications: {
-        score: number;
-        tips: {
-            type: "good" | "improve";
-            tip: string;
-            explanation?: string;
-        }[];
-    };
-    dosage: {
-        score: number;
-        tips: {
-            type: "good" | "improve";
-            tip: string;
-            explanation?: string;
-        }[];
-    };
-    instructions: {
-        score: number;
-        tips: {
-            type: "good" | "improve";
-            tip: string;
-            explanation?: string;
-        }[];
-    };
-    sideEffects: {
-        score: number;
-        tips: {
-            type: "good" | "improve";
-            tip: string;
-            explanation?: string;
-        }[];
-    };
-    lifestyle: {
-        score: number;
-        tips: {
-            type: "good" | "improve";
-            tip: string;
-            explanation?: string;
-        }[];
-    };
-    healthCompliance: {
-        score: number;
-        tips: {
-            type: "good" | "improve";
-            tip: string;
-        }[];
-    };
+**SCORING GUIDELINES:**
+- Score 90-100: Excellent - No issues, optimal choices
+- Score 70-89: Good - Minor concerns, generally safe
+- Score 50-69: Moderate - Some issues requiring attention
+- Score 30-49: Poor - Significant concerns, medical review needed
+- Score 0-29: Critical - Serious issues, immediate medical attention required
+
+**ANALYSIS REQUIREMENTS:**
+1. **medications**: Evaluate drug appropriateness, interactions, allergies, contraindications
+2. **dosage**: Check dosing accuracy, frequency, duration, age-appropriate dosing
+3. **instructions**: Assess clarity, completeness, patient understanding requirements
+4. **sideEffects**: Identify potential adverse effects, monitoring needs, risk factors
+5. **lifestyle**: Evaluate impact on diet, exercise, daily activities, quality of life
+6. **healthCompliance**: Assess ease of adherence, cost factors, accessibility, patient barriers
+
+**OUTPUT FORMAT:**
+Return ONLY a valid JSON object in this exact format:
+{
+  "medications": {
+    "score": 0-100,
+    "tips": [
+      {"type": "good", "tip": "Clear medication description", "explanation": "Detailed reasoning"},
+      {"type": "improve", "tip": "Consider drug interactions", "explanation": "Specific recommendations"}
+    ]
+  },
+  "dosage": {
+    "score": 0-100,
+    "tips": [
+      {"type": "good", "tip": "Appropriate dosing schedule", "explanation": "Why this is optimal"},
+      {"type": "improve", "tip": "Review dosage for age/weight", "explanation": "Adjustment recommendations"}
+    ]
+  },
+  "instructions": {
+    "score": 0-100,
+    "tips": [
+      {"type": "good", "tip": "Clear administration instructions", "explanation": "Patient-friendly guidance"},
+      {"type": "improve", "tip": "Add food timing instructions", "explanation": "When to take with/without food"}
+    ]
+  },
+  "sideEffects": {
+    "score": 0-100,
+    "tips": [
+      {"type": "good", "tip": "Minimal side effect risk", "explanation": "Low-risk medication profile"},
+      {"type": "improve", "tip": "Monitor for common side effects", "explanation": "What to watch for and when to report"}
+    ]
+  },
+  "lifestyle": {
+    "score": 0-100,
+    "tips": [
+      {"type": "good", "tip": "Compatible with daily activities", "explanation": "Minimal lifestyle disruption"},
+      {"type": "improve", "tip": "Adjust exercise routine", "explanation": "Activity modifications needed"}
+    ]
+  },
+  "healthCompliance": {
+    "score": 0-100,
+    "tips": [
+      {"type": "good", "tip": "Easy to follow regimen", "explanation": "Simple dosing schedule"},
+      {"type": "improve", "tip": "Consider adherence aids", "explanation": "Pill organizers, reminders, or support"}
+    ]
+  }
 }
 
-Scoring guidance:
-- Use 0-100 numeric scores for each category.
-- Be honest and specific: lower scores are acceptable when issues are present.
-- If information is missing (e.g. dose not specified), reflect that in the score and tips.
+**PATIENT CONTEXT:**
+- Patient: ${patientName}
+- Doctor: ${doctorName}
+- Symptoms/Notes: ${symptoms}
 
-Content guidance:
-- For each category, provide 2-4 tips. Use type "good" for positive observations and type "improve" for actionable suggestions.
-- Include explanation text for "improve" tips describing why and how to improve.
-
-Context (use when helpful):
-Patient name: ${patientName}
-Doctor name: ${doctorName}
-Symptoms / context: ${symptoms}
-
-Return only valid JSON (no markdown, no backticks, no commentary).`;
+**IMPORTANT:** Focus on patient safety, provide actionable recommendations, and ensure scores reflect real medical significance. Do not include any text before or after the JSON.`;
+  

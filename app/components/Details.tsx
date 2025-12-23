@@ -6,50 +6,16 @@ import {
   AccordionItem,
 } from "./Accordion";
 
-const ScoreBadge = ({ score }: { score: number }) => {
-  return (
-      <div
-          className={cn(
-              "flex flex-row gap-1 items-center px-2 py-0.5 rounded-[96px]",
-              score > 69
-                  ? "bg-badge-green"
-                  : score > 39
-                      ? "bg-badge-yellow"
-                      : "bg-badge-red"
-          )}
-      >
-        <img
-            src={score > 69 ? "/icons/check.svg" : "/icons/warning.svg"}
-            alt="score"
-            className="size-4"
-        />
-        <p
-            className={cn(
-                "text-sm font-medium",
-                score > 69
-                    ? "text-badge-green-text"
-                    : score > 39
-                        ? "text-badge-yellow-text"
-                        : "text-badge-red-text"
-            )}
-        >
-          {score}/100
-        </p>
-      </div>
-  );
-};
+
 
 const CategoryHeader = ({
                           title,
-                          categoryScore,
                         }: {
   title: string;
-  categoryScore: number;
 }) => {
   return (
       <div className="flex flex-row gap-4 items-center py-2">
         <p className="text-2xl font-semibold">{title}</p>
-        <ScoreBadge score={categoryScore} />
       </div>
   );
 };
@@ -114,7 +80,6 @@ const Details = ({ feedback }: { feedback: Feedback }) => {
             <AccordionHeader itemId="medications">
               <CategoryHeader
                   title="Medications"
-                  categoryScore={feedback.medications.score}
               />
             </AccordionHeader>
             <AccordionContent itemId="medications">
@@ -125,7 +90,6 @@ const Details = ({ feedback }: { feedback: Feedback }) => {
             <AccordionHeader itemId="dosage">
               <CategoryHeader
                   title="Dosage"
-                  categoryScore={feedback.dosage.score}
               />
             </AccordionHeader>
             <AccordionContent itemId="dosage">
@@ -136,7 +100,6 @@ const Details = ({ feedback }: { feedback: Feedback }) => {
             <AccordionHeader itemId="instructions">
               <CategoryHeader
                   title="Instructions"
-                  categoryScore={feedback.instructions.score}
               />
             </AccordionHeader>
             <AccordionContent itemId="instructions">
@@ -147,7 +110,6 @@ const Details = ({ feedback }: { feedback: Feedback }) => {
             <AccordionHeader itemId="side-effects">
               <CategoryHeader
                   title="Side Effects"
-                  categoryScore={feedback.sideEffects.score}
               />
             </AccordionHeader>
             <AccordionContent itemId="side-effects">
@@ -158,7 +120,6 @@ const Details = ({ feedback }: { feedback: Feedback }) => {
             <AccordionHeader itemId="lifestyle">
               <CategoryHeader
                   title="Lifestyle"
-                  categoryScore={feedback.lifestyle.score}
               />
             </AccordionHeader>
             <AccordionContent itemId="lifestyle">

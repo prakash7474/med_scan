@@ -9,7 +9,7 @@ let isLoading = false;
 let loadPromise: Promise<any> | null = null;
 
 async function loadPdfJs(): Promise<any> {
-    if (pdfjsLib) return pdfjsLib;
+    if (pdfjsLib) return pdfjsLib;  
     if (loadPromise) return loadPromise;
 
     isLoading = true;
@@ -25,6 +25,49 @@ async function loadPdfJs(): Promise<any> {
     return loadPromise;
 }
 
+async function convertWithScale(
+    lib: any,
+    pdf: any,
+    page: any,
+    scale: number,
+    originalName: string
+): Promise<PdfConversionResult> {
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    if (context) {
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
+    }
+
+    await page.render({ canvasContext: context!, viewport }).promise;
+
+    return new Promise((resolve) => {
+        canvas.toBlob(
+            (blob) => {
+                if (blob) {
+                    resolve({
+                        imageUrl: URL.createObjectURL(blob),
+                        file: new File([blob], `${originalName}.png`, { type: "image/png" }),
+                    });
+                } else {
+                    resolve({
+                        imageUrl: "",
+                        file: null,
+                        error: "Failed to create image blob",
+                    });
+                }
+            },
+            "image/png",
+            1.0
+        );
+    });
+}
+
 export async function convertPdfToImage(
     file: File
 ): Promise<PdfConversionResult> {
@@ -34,47 +77,25 @@ export async function convertPdfToImage(
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await lib.getDocument({ data: arrayBuffer }).promise;
         const page = await pdf.getPage(1);
+        const originalName = file.name.replace(/\.pdf$/i, "");
 
-        const viewport = page.getViewport({ scale: 4 });
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        if (context) {
-            context.imageSmoothingEnabled = true;
-            context.imageSmoothingQuality = "high";
+        // Try high quality first (scale 4)
+        try {
+            return await convertWithScale(lib, pdf, page, 4, originalName);
+        } catch (highQualityError) {
+            console.warn("High quality conversion failed, retrying with lower quality:", highQualityError);
+            // Retry with lower quality (scale 2)
+            try {
+                return await convertWithScale(lib, pdf, page, 2, originalName);
+            } catch (lowQualityError) {
+                console.error("Low quality conversion also failed:", lowQualityError);
+                return {
+                    imageUrl: "",
+                    file: null,
+                    error: "PDF conversion failed due to memory constraints. Please try a smaller PDF file.",
+                };
+            }
         }
-
-        await page.render({ canvasContext: context!, viewport }).promise;
-
-        return new Promise((resolve) => {
-            canvas.toBlob(
-                (blob) => {
-                    if (blob) {
-                        // Create a File from the blob with the same name as the pdf
-                        const originalName = file.name.replace(/\.pdf$/i, "");
-                        const imageFile = new File([blob], `${originalName}.png`, {
-                            type: "image/png",
-                        });
-
-                        resolve({
-                            imageUrl: URL.createObjectURL(blob),
-                            file: imageFile,
-                        });
-                    } else {
-                        resolve({
-                            imageUrl: "",
-                            file: null,
-                            error: "Failed to create image blob",
-                        });
-                    }
-                },
-                "image/png",
-                1.0
-            ); // Set quality to maximum (1.0)
-        });
     } catch (err) {
         return {
             imageUrl: "",

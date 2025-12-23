@@ -8,7 +8,6 @@ interface Prescription {
 }
 
 interface Feedback {
-    overallScore: number;
     medications: {
         score: number;
         tips: {

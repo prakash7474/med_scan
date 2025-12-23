@@ -20,11 +20,11 @@ const Chatbot = () => {
         setIsLoading(true);
 
         try {
-            const response = await ai.chat(userMessage);
+            const response = await ai.chat([{ role: 'user', content: userMessage }]);
             if (response && response.message && response.message.content) {
                 const botText = typeof response.message.content === 'string'
                     ? response.message.content
-                    : response.message.content.map(c => c.text || '').join(' ');
+                    : response.message.content.map((c: any) => c.text || '').join(' ');
                 setMessages([...newMessages, { type: 'bot', text: botText }]);
             } else {
                 setMessages([...newMessages, { type: 'bot', text: 'Sorry, I couldn\'t generate a response. Please try again.' }]);

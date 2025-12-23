@@ -1,5 +1,3 @@
-import ScoreGauge from './ScoreGauge';
-import ScoreBadge from './ScoreBadge';
 import { Accordion, AccordionItem, AccordionHeader, AccordionContent } from './Accordion';
 import MedicineReminder from './MedicineReminder';
 import HealthCompliance from './HealthCompliance';
@@ -11,8 +9,6 @@ interface ReportSummaryProps {
 
 const ReportSummary = ({ prescription }: ReportSummaryProps) => {
     const feedback = prescription.feedback;
-    const overallScore = feedback.overallScore || 85;
-    const complianceScore = feedback.healthCompliance?.score || 80;
     const suggestions = feedback.healthCompliance?.tips || [
         { type: "good" as const, tip: "Dosages are within safe limits." },
         { type: "improve" as const, tip: "Consider adding probiotics to mitigate antibiotic side effects." },
@@ -22,18 +18,9 @@ const ReportSummary = ({ prescription }: ReportSummaryProps) => {
         <div className="bg-white rounded-2xl shadow-md p-6 w-full">
             <h3 className="text-2xl font-bold mb-6">AI Prescription Report</h3>
 
-            {/* Overall Score Section */}
-            <div className="mb-6">
-                <h4 className="text-xl font-semibold mb-4">Overall Score</h4>
-                <div className="flex items-center gap-4">
-                    <ScoreGauge score={overallScore} />
-                    <ScoreBadge score={overallScore} />
-                </div>
-            </div>
-
             {/* Personalized Recommendations */}
             <div className="mb-6">
-                <HealthCompliance score={complianceScore} suggestions={suggestions} />
+                <HealthCompliance suggestions={suggestions} />
             </div>
 
             {/* Expandable Sections */}

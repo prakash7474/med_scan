@@ -75,7 +75,7 @@ interface PuterStore {
         feedback: (
             path: string,
             message: string
-        ) => Promise<Object>;
+        ) => Promise<AIResponse | undefined>;
         img2txt: (
             image: string | File | Blob,
             testMode?: boolean
@@ -304,13 +304,7 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             setError("Puter.js not available");
             return;
         }
-        try {
-            return await puter.fs.upload(files);
-        } catch (error) {
-            console.error('Upload failed:', error);
-            setError("Failed to upload file");
-            return;
-        }
+        return puter.fs.upload(files);
     };
 
     const deleteFile = async (path: string) => {
@@ -333,36 +327,75 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             setError("Puter.js not available");
             return;
         }
-
-        try {
-            if (typeof imageURL === 'string') {
-                return await puter.ai.chat(prompt, imageURL, testMode, options) as Promise<AIResponse | undefined>;
-            } else {
-                // imageURL is PuterChatOptions, so pass it as options
-                const chatOptions = imageURL || options;
-                return await puter.ai.chat(prompt, undefined, testMode, chatOptions) as Promise<AIResponse | undefined>;
-            }
-        } catch (error) {
-            console.error('Chat failed:', error);
-            setError("Failed to chat");
-            return;
-        }
+        // return puter.ai.chat(prompt, imageURL, testMode, options);
+        return puter.ai.chat(prompt, imageURL, testMode, options) as Promise<
+            AIResponse | undefined
+        >;
     };
 
     const feedback = async (path: string, message: string) => {
-        const puter = getPuter();
-        if (!puter) {
-            setError("Puter.js not available");
-            return;
-        }
-
         try {
-            // Use chat with image URL directly
-            return await puter.ai.chat(message, path, undefined, { model: "claude-3-7-sonnet" });
+            const puter = getPuter();
+            if (!puter) {
+                setError("Puter.js not available");
+                return;
+            }
+
+            // Get the image blob from Puter
+            const imageBlob = await puter.fs.read(path);
+
+            // Convert blob to base64
+            const base64String = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const result = reader.result as string;
+                    // Remove the data URL prefix (e.g., "data:image/jpeg;base64,")
+                    const base64 = result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(imageBlob);
+            });
+
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    model: "google/gemini-2.5-flash-image-preview",
+                    messages: [
+                        {
+                            role: "user",
+                            content: [
+                                { type: "text", text: message },
+                                {
+                                    type: "image_url",
+                                    image_url: {
+                                        url: `data:image/jpeg;base64,${base64String}`
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`OpenRouter API error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return {
+                message: {
+                    content: data.choices[0].message.content
+                }
+            } as AIResponse;
         } catch (error) {
-            console.error('Feedback failed:', error);
-            setError("Failed to get feedback");
-            return;
+            console.error('OpenRouter API error:', error);
+            setError("Failed to analyze image with OpenRouter");
+            return undefined;
         }
     };
 
