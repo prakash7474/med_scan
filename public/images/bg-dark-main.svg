@@ -1,0 +1,14 @@
+<svg width="360" height="640" viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="mainDarkBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#121212"></stop>
+      <stop offset="100%" stop-color="#1E1E1E"></stop>
+    </linearGradient>
+  </defs>
+
+  <rect width="360" height="640" fill="url(#mainDarkBg)"></rect>
+
+  <!-- Abstract scan layers -->
+  <ellipse cx="280" cy="220" rx="160" ry="140" fill="#4A90E2" opacity="0.08"></ellipse>
+  <ellipse cx="80" cy="480" rx="180" ry="160" fill="#00E5FF" opacity="0.05"></ellipse>
+</svg>

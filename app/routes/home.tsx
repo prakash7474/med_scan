@@ -4,6 +4,7 @@ import PrescriptionCard from "~/components/PrescriptionCard";
 import {usePuterStore} from "~/lib/puter";
 import {Link, useNavigate} from "react-router";
 import {useEffect, useState} from "react";
+import Snowfall from 'react-snowfall';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -21,6 +22,16 @@ export default function Home() {
   useEffect(() => {
     if (puterReady && !auth.isAuthenticated) navigate('/auth?next=/home');
   }, [auth.isAuthenticated, puterReady])
+
+  // Apply saved theme preference
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode === 'true') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [])
 
   useEffect(() => {
     const loadPrescriptions = async () => {
@@ -49,22 +60,23 @@ export default function Home() {
     }
   }, [puterReady]);
 
-  return <main className="bg-[url('/images/bg-main.svg')] bg-cover">
+  return <main className="bg-[url('/images/bg-main.svg')] bg-cover transition-all duration-300">
+    <Snowfall />
     <Navbar />
 
     <section className="main-section">
       <div className="page-heading py-16">
-        <h1>Smart Prescription AI</h1>
+        <h1 className="text-black dark:text-white">Smart Prescription AI</h1>
         {!loadingPrescriptions && prescriptions?.length === 0 ? (
-            <h2>Scan. Understand. Stay Healthy.</h2>
+            <h2 className="text-dark-200 dark:text-gray-200">Scan. Understand. Stay Healthy.</h2>
         ): (
-          <h2>Review your prescriptions and check AI-powered health feedback.</h2>
+          <h2 className="text-dark-200 dark:text-gray-200">Review your prescriptions and check AI-powered health feedback.</h2>
         )}
       </div>
       {loadingPrescriptions && (
           <div className="flex flex-col items-center justify-center">
             <div className="flex flex-col items-center justify-center p-8">
-              <p className="text-gray-500 text-lg">Loading your prescriptions...</p>
+              <p className="text-gray-500 dark:text-gray-300 text-lg">Loading your prescriptions...</p>
             </div>
           </div>
       )}
@@ -86,4 +98,5 @@ export default function Home() {
       )}
     </section>
   </main>
+  
 }

@@ -1,5 +1,5 @@
 async function testOpenRouterAPI() {
-    const apiKey = "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";
+    const apiKey = "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";
 
     try {
         console.log("Testing OpenRouter API with Gemini model...");
@@ -15,15 +15,7 @@ async function testOpenRouterAPI() {
                 messages: [
                     {
                         role: "user",
-                        content: [
-                            { type: "text", text: "Analyze this prescription image and extract medicine names, dosages, and any important information." },
-                            {
-                                type: "image_url",
-                                image_url: {
-                                    url: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+IRjWjBqO6O2mhP//Z"
-                                }
-                            }
-                        ]
+                        content: "Hello, can you confirm this API is working? Please respond with a simple confirmation."
                     }
                 ]
             })

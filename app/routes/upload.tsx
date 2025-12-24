@@ -6,6 +6,7 @@ import {useNavigate} from "react-router";
 import {convertPdfToImage} from "~/lib/pdf2img";
 import {generateUUID} from "~/lib/utils";
 import {prepareInstructions} from "../../constants";
+import Snowfall from "react-snowfall";
 
 const Upload = () => {
     const { auth, isLoading, fs, ai, kv } = usePuterStore();

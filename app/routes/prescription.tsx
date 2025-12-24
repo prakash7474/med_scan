@@ -2,6 +2,7 @@ import {Link, useNavigate, useParams} from "react-router";
 import {useEffect, useState} from "react";
 import {usePuterStore} from "~/lib/puter";
 import LifestyleTips from "~/components/LifestyleTips";
+import Snowfall from "react-snowfall";
 
 export const meta = () => ([
     { title: 'MediScan AI | Prescription Review' },
@@ -65,6 +66,7 @@ const Prescription = () => {
 
     return (
         <main className="!pt-0">
+            <Snowfall />
             <nav className="prescription-nav">
                 <Link to="/home" className="back-button">
                     <img src="/icons/back.svg" alt="logo" className="w-2.5 h-2.5" />

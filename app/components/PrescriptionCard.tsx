@@ -21,9 +21,9 @@ const PrescriptionCard = ({ prescription: { id, patientName, doctorName, feedbac
         <Link to={`/prescription/${id}`} className="prescription-card animate-in fade-in duration-1000">
             <div className="resume-card-header">
                 <div className="flex flex-col gap-2">
-                    {patientName && <h2 className="!text-black font-bold break-words">{patientName}</h2>}
-                    {doctorName && <h3 className="text-lg break-words text-gray-500">{doctorName}</h3>}
-                    {!patientName && !doctorName && <h2 className="!text-black font-bold">Prescription</h2>}
+                    {patientName && <h2 className="!text-black dark:!text-white font-bold break-words">{patientName}</h2>}
+                    {doctorName && <h3 className="text-lg break-words text-gray-500 dark:text-gray-300">{doctorName}</h3>}
+                    {!patientName && !doctorName && <h2 className="!text-black dark:!text-white font-bold">Prescription</h2>}
                 </div>
 
             </div>

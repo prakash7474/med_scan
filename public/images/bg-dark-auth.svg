@@ -1,0 +1,15 @@
+<svg width="360" height="640" viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="authDarkBg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0F2027"></stop>
+      <stop offset="50%" stop-color="#203A43"></stop>
+      <stop offset="100%" stop-color="#2C5364"></stop>
+    </linearGradient>
+  </defs>
+
+  <rect width="360" height="640" fill="url(#authDarkBg)"></rect>
+
+  <!-- Soft medical glow -->
+  <circle cx="300" cy="100" r="140" fill="#4A90E2" opacity="0.10"></circle>
+  <circle cx="60" cy="520" r="180" fill="#00BCD4" opacity="0.06"></circle>
+</svg>

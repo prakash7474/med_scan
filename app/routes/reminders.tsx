@@ -14,7 +14,7 @@ export default function RemindersPage() {
     <main className="bg-[url('/images/bg-main.svg')] bg-cover min-h-screen">
       <Navbar />
 
-      <section className="main-section py-16">
+      <section className="main-section py-20">
         <div className="max-w-2xl mx-auto">
           <MedicineReminder />
         </div>

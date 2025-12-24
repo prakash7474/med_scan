@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { usePuterStore } from '~/lib/puter';
 
-const MedicineReminder = () => {
+interface MedicineReminderProps {
+    isModal?: boolean;
+}
+
+const MedicineReminder = ({ isModal = false }: MedicineReminderProps) => {
     const { auth, kv } = usePuterStore();
     const [medicines, setMedicines] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
@@ -67,7 +71,7 @@ const MedicineReminder = () => {
     const saveMedicines = async (newMedicines: any[]) => {
         setLoading(true);
         try {
-            await kv.set(`medicines:${auth.user?.id}`, JSON.stringify(newMedicines));
+            await kv.set(`medicines:${auth.user?.username || 'user'}`, JSON.stringify(newMedicines));
             setMedicines(newMedicines);
         } catch (error) {
             console.error('Failed to save medicines:', error);
@@ -110,7 +114,7 @@ const MedicineReminder = () => {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-md p-6 w-full">
+        <div className={`${isModal ? 'w-full' : 'bg-white rounded-2xl shadow-md p-6 w-full'}`}>
             <h3 className="text-2xl font-bold mb-4">Medicine Reminders</h3>
 
             {/* Add new medicine */}
