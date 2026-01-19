@@ -1,6 +1,5 @@
 import Navbar from "~/components/Navbar";
 import Chatbot from "~/components/Chatbot";
-import Snowfall from "react-snowfall";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -12,7 +11,6 @@ export function meta({}: Route.MetaArgs) {
 export default function ChatPage() {
   return (
     <main className="bg-[url('/images/bg-main.svg')] bg-cover min-h-screen">
-      <Snowfall />
       <Navbar />
 
       <section className="main-section py-16">

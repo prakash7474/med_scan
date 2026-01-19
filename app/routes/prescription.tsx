@@ -2,7 +2,6 @@ import {Link, useNavigate, useParams} from "react-router";
 import {useEffect, useState} from "react";
 import {usePuterStore} from "~/lib/puter";
 import LifestyleTips from "~/components/LifestyleTips";
-import Snowfall from "react-snowfall";
 
 export const meta = () => ([
     { title: 'MediScan AI | Prescription Review' },

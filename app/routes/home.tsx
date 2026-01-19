@@ -4,7 +4,6 @@ import PrescriptionCard from "~/components/PrescriptionCard";
 import {usePuterStore} from "~/lib/puter";
 import {Link, useNavigate} from "react-router";
 import {useEffect, useState} from "react";
-import Snowfall from 'react-snowfall';
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -61,7 +60,6 @@ export default function Home() {
   }, [puterReady]);
 
   return <main className="bg-[url('/images/bg-main.svg')] bg-cover transition-all duration-300">
-    <Snowfall />
     <Navbar />
 
     <section className="main-section">
