@@ -1,13 +1,26 @@
+import { Link } from "react-router";
 import { Accordion, AccordionItem, AccordionHeader, AccordionContent } from './Accordion';
-import MedicineReminder from './MedicineReminder';
-import HealthCompliance from './HealthCompliance';
-import SideEffectJournal from './SideEffectJournal';
 
 interface ReportSummaryProps {
-    prescription: Prescription;
+    prescription?: Prescription;
 }
 
 const ReportSummary = ({ prescription }: ReportSummaryProps) => {
+    if (!prescription) {
+        return (
+            <div className="bg-white rounded-2xl shadow-md p-6 w-full">
+                <h3 className="text-2xl font-bold mb-6">AI Prescription Report</h3>
+                <div className="text-center py-12">
+                    <p className="text-gray-500 text-lg mb-4">No prescription selected.</p>
+                    <p className="text-gray-400 mb-6">Upload a prescription to get a detailed AI analysis report.</p>
+                    <Link to="/upload" className="primary-button w-fit mx-auto">
+                        Upload Prescription
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
     const feedback = prescription.feedback;
     const suggestions = feedback.healthCompliance?.tips || [
         { type: "good" as const, tip: "Dosages are within safe limits." },
@@ -20,7 +33,21 @@ const ReportSummary = ({ prescription }: ReportSummaryProps) => {
 
             {/* Personalized Recommendations */}
             <div className="mb-6">
-                <HealthCompliance suggestions={suggestions} />
+                <h4 className="text-xl font-semibold mb-4">Health Compliance</h4>
+                <div className="space-y-3">
+                    {suggestions.map((suggestion, index) => (
+                        <div key={index} className="flex items-start gap-3">
+                            <img
+                                src={suggestion.type === "good" ? "/icons/check.svg" : "/icons/warning.svg"}
+                                alt={suggestion.type === "good" ? "Check" : "Warning"}
+                                className="w-5 h-5 mt-1"
+                            />
+                            <p className={suggestion.type === "good" ? "text-green-700" : "text-amber-700"}>
+                                {suggestion.tip}
+                            </p>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* Expandable Sections */}
@@ -29,64 +56,50 @@ const ReportSummary = ({ prescription }: ReportSummaryProps) => {
                     <AccordionItem id="medicine-details">
                         <AccordionHeader itemId="medicine-details">Medicine Details</AccordionHeader>
                         <AccordionContent itemId="medicine-details">
-                            <ul className="text-gray-600 space-y-1">
-                                <li>• Paracetamol 650mg: 1-0-1 for 5 days</li>
-                                <li>• Amoxicillin 500mg: 1-0-1 for 7 days</li>
-                            </ul>
+                            <div className="text-gray-600 space-y-2">
+                                {feedback.medications?.tips?.map((tip, i) => (
+                                    <div key={i} className="flex items-start gap-2">
+                                        <span>{tip.type === 'good' ? '✅' : '⚠️'}</span>
+                                        <span>{tip.tip}</span>
+                                    </div>
+                                )) || <p>No medication details available.</p>}
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem id="instructions">
                         <AccordionHeader itemId="instructions">Instructions</AccordionHeader>
                         <AccordionContent itemId="instructions">
-                            <p className="text-gray-600">Take medications as prescribed. Complete the full course even if symptoms improve.</p>
+                            <div className="text-gray-600 space-y-2">
+                                {feedback.instructions?.tips?.map((tip, i) => (
+                                    <div key={i} className="flex items-start gap-2">
+                                        <span>{tip.type === 'good' ? '✅' : '⚠️'}</span>
+                                        <span>{tip.tip}</span>
+                                    </div>
+                                )) || <p>No instructions available.</p>}
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
-                    <AccordionItem id="tips">
-                        <AccordionHeader itemId="tips">Tips</AccordionHeader>
-                        <AccordionContent itemId="tips">
-                            <ul className="text-gray-600 space-y-1">
-                                <li>• Stay hydrated and rest</li>
-                                <li>• Avoid alcohol while taking antibiotics</li>
-                                <li>• Eat light, easily digestible foods</li>
-                            </ul>
+                    <AccordionItem id="side-effects">
+                        <AccordionHeader itemId="side-effects">Side Effects</AccordionHeader>
+                        <AccordionContent itemId="side-effects">
+                            <div className="text-gray-600 space-y-2">
+                                {feedback.sideEffects?.tips?.map((tip, i) => (
+                                    <div key={i} className="flex items-start gap-2">
+                                        <span>{tip.type === 'good' ? '✅' : '⚠️'}</span>
+                                        <span>{tip.tip}</span>
+                                    </div>
+                                )) || <p>No side effect information available.</p>}
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
             </div>
 
-            {/* Interactive Tools */}
-            <div className="mb-6">
-                <h4 className="text-xl font-semibold mb-4">Interactive Tools</h4>
-                <div className="space-y-4">
-                    <MedicineReminder />
-                    <SideEffectJournal />
-                </div>
-            </div>
-
-            {/* Next Steps */}
-            <div className="mb-6">
-                <h4 className="text-xl font-semibold mb-4">Next Steps</h4>
-                <ul className="text-gray-600 space-y-2">
-                    <li>• Schedule a follow-up appointment in 7 days</li>
-                    <li>• Monitor for any side effects and log them above</li>
-                    <li>• Refill prescription as needed</li>
-                    <li>• Consult doctor if symptoms worsen</li>
-                </ul>
-            </div>
-
             {/* Trust Note */}
             <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                 <p className="text-sm text-gray-600">
-                    This report is generated by AI based on standard medical guidelines. Always consult with a healthcare professional for personalized advice. <a href="/glossary" className="text-blue-600 underline">View Glossary</a>
+                    This report is generated by AI based on standard medical guidelines. Always consult with a healthcare professional for personalized advice.
                 </p>
-            </div>
-
-            {/* CTAs */}
-            <div className="flex flex-wrap gap-4 mt-6">
-                <button className="primary-button flex-1" aria-label="Download the report as PDF">📄 Download PDF</button>
-                <button className="bg-green-500 text-white rounded-full px-6 py-2 hover:bg-green-600 transition" aria-label="Share the report">📤 Share</button>
-                <button className="bg-blue-500 text-white rounded-full px-6 py-2 hover:bg-blue-600 transition" aria-label="Save the report">💾 Save Report</button>
-                <button className="bg-purple-500 text-white rounded-full px-6 py-2 hover:bg-purple-600 transition" aria-label="Email the report">📧 Email Report</button>
             </div>
         </div>
     );

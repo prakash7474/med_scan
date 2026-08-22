@@ -71,9 +71,6 @@ form {
   .back-button {
     @apply flex flex-row items-center gap-2 border border-gray-200 rounded-lg p-2 shadow-sm;
   }
-  .auth-button {
-    @apply primary-gradient rounded-full py-4 px-8 cursor-pointer w-[600px] max-md:w-full text-3xl font-semibold text-white;
-  }
   .main-section {
     @apply flex flex-col items-center gap-8 pt-12 mx-15 pb-5;
   }
@@ -175,3 +172,8 @@ form {
 .dark .border-gray-200 {
   border-color: var(--border-color);
 }
+
+/* Hide Puter.js consent banner */
+iframe[src*="puter"] { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+dialog .puter-dialog-content { display: none !important; }
+dialog:has(.puter-dialog-content) { display: none !important; }

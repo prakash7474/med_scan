@@ -13,7 +13,6 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import {usePuterStore} from "~/lib/puter";
 import {useEffect} from "react";
-import Snowfall from 'react-snowfall';
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -45,6 +44,33 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <script src="https://js.puter.com/v2/"></script>
+        <script>{`
+          (function() {
+            function hidePuterDialogs() {
+              document.querySelectorAll('dialog').forEach(function(d) {
+                if (d.querySelector('.puter-dialog-content')) {
+                  d.remove();
+                }
+              });
+              document.querySelectorAll('dialog[open]').forEach(function(d) {
+                if (d.querySelector('.puter-dialog-content')) {
+                  d.close();
+                  d.remove();
+                }
+              });
+            }
+            hidePuterDialogs();
+            new MutationObserver(hidePuterDialogs).observe(document.body, { childList: true, subtree: true });
+            var origShowModal = HTMLDialogElement.prototype.showModal;
+            HTMLDialogElement.prototype.showModal = function() {
+              if (this.querySelector('.puter-dialog-content')) {
+                this.remove();
+                return;
+              }
+              return origShowModal.apply(this, arguments);
+            };
+          })();
+        `}</script>
         {children}
         <ScrollRestoration />
         <Scripts />

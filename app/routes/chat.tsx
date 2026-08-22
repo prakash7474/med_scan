@@ -1,3 +1,4 @@
+import type { Route } from "./+types/chat";
 import Navbar from "~/components/Navbar";
 import Chatbot from "~/components/Chatbot";
 

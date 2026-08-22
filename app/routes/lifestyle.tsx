@@ -1,3 +1,4 @@
+import type { Route } from "./+types/lifestyle";
 import Navbar from "~/components/Navbar";
 import LifestyleTips from "~/components/LifestyleTips";
 

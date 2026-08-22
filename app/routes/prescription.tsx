@@ -1,7 +1,10 @@
-import {Link, useNavigate, useParams} from "react-router";
-import {useEffect, useState} from "react";
-import {usePuterStore} from "~/lib/puter";
+import { Link, useParams } from "react-router";
+import { useState } from "react";
+import { usePrescription } from "~/hooks/usePrescriptions";
 import LifestyleTips from "~/components/LifestyleTips";
+import LoadingSpinner from "~/components/ui/LoadingSpinner";
+import ErrorMessage from "~/components/ui/ErrorMessage";
+import StatusBadge from "~/components/ui/StatusBadge";
 
 export const meta = () => ([
     { title: 'MediScan AI | Prescription Review' },
@@ -9,77 +12,61 @@ export const meta = () => ([
 ])
 
 const Prescription = () => {
-    const { auth, isLoading, fs, kv } = usePuterStore();
     const { id } = useParams();
-    const [imageUrl, setImageUrl] = useState('');
-    const [prescriptionUrl, setPrescriptionUrl] = useState('');
-    const [aiResponse, setAiResponse] = useState('');
-    const [feedback, setFeedback] = useState<any>(null);
+    const { prescription, imageUrl, prescriptionUrl, loading, error } = usePrescription(id);
     const [showLifestyle, setShowLifestyle] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const navigate = useNavigate();
 
-    useEffect(() => {
-        if(!isLoading && !auth.isAuthenticated) navigate('/auth?next=/home');
-    }, [isLoading])
+    if (loading) {
+        return (
+            <main className="!pt-0">
+                <nav className="prescription-nav">
+                    <Link to="/home" className="back-button">
+                        <img src="/icons/back.svg" alt="back" className="w-2.5 h-2.5" />
+                        <span className="text-gray-800 text-sm font-semibold">Back to Homepage</span>
+                    </Link>
+                </nav>
+                <LoadingSpinner message="Loading prescription..." />
+            </main>
+        );
+    }
 
-    useEffect(() => {
-        const loadPrescription = async () => {
-            console.log('Loading prescription with ID:', id);
-            const prescription = await kv.get(`prescription:${id}`);
+    if (error || !prescription) {
+        return (
+            <main className="!pt-0">
+                <nav className="prescription-nav">
+                    <Link to="/home" className="back-button">
+                        <img src="/icons/back.svg" alt="back" className="w-2.5 h-2.5" />
+                        <span className="text-gray-800 text-sm font-semibold">Back to Homepage</span>
+                    </Link>
+                </nav>
+                <ErrorMessage
+                    title="Error Loading Prescription"
+                    message={error || 'Prescription not found.'}
+                    onRetry={() => window.location.reload()}
+                />
+            </main>
+        );
+    }
 
-            if(!prescription) {
-                console.error('No prescription found for ID:', id);
-                return;
-            }
-
-            const data = JSON.parse(prescription);
-            console.log('Parsed prescription data:', data);
-
-            const prescriptionBlob = await fs.read(data.prescriptionPath);
-            if(!prescriptionBlob) {
-                console.error('Failed to read prescription file');
-                return;
-            }
-
-            const pdfBlob = new Blob([prescriptionBlob], { type: 'application/pdf' });
-            const prescriptionUrl = URL.createObjectURL(pdfBlob);
-            setPrescriptionUrl(prescriptionUrl);
-
-            const imageBlob = await fs.read(data.imagePath);
-            if(!imageBlob) {
-                console.error('Failed to read image file');
-                return;
-            }
-            const imageUrl = URL.createObjectURL(imageBlob);
-            setImageUrl(imageUrl);
-
-            console.log('Setting feedback:', data.feedback);
-            setFeedback(data.feedback);
-            setAiResponse(data.aiResponse || '');
-
-        }
-
-        loadPrescription();
-    }, [id]);
+    const feedback = prescription.feedback;
 
     return (
         <main className="!pt-0">
-            <Snowfall />
             <nav className="prescription-nav">
                 <Link to="/home" className="back-button">
-                    <img src="/icons/back.svg" alt="logo" className="w-2.5 h-2.5" />
+                    <img src="/icons/back.svg" alt="back" className="w-2.5 h-2.5" />
                     <span className="text-gray-800 text-sm font-semibold">Back to Homepage</span>
                 </Link>
             </nav>
             <div className="flex flex-row w-full max-lg:flex-col-reverse">
-                <section className="feedback-section bg-[url('/images/bg-small.svg') bg-cover h-[100vh] sticky top-0 items-center justify-center">
+                <section className="feedback-section bg-[url('/images/bg-small.svg')] bg-cover h-[100vh] sticky top-0 items-center justify-center">
                     {imageUrl && prescriptionUrl && (
                         <div className="animate-in fade-in duration-1000 gradient-border max-sm:m-0 h-[90%] max-wxl:h-fit w-fit">
                             <a href={prescriptionUrl} target="_blank" rel="noopener noreferrer">
                                 <img
                                     src={imageUrl}
                                     className="w-full h-full object-contain rounded-2xl"
+                                    alt="prescription"
                                     title="prescription"
                                 />
                             </a>
@@ -94,11 +81,7 @@ const Prescription = () => {
                                 <h3 className="text-lg font-semibold mb-3">Explore More</h3>
                                 <div className="flex flex-col gap-3">
                                     <div className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onClick={() => setShowLifestyle(!showLifestyle)}>
-                                        <img
-                                            src="/images/lifestyle.png"
-                                            alt="Lifestyle Tips"
-                                            className="w-6 h-6"
-                                        />
+                                        <img src="/images/lifestyle.png" alt="Lifestyle Tips" className="w-6 h-6" />
                                         <span className="text-sm font-medium">Lifestyle Tips</span>
                                     </div>
                                     <Link to="/how-it-works" className="bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm text-center">
@@ -108,30 +91,17 @@ const Prescription = () => {
                             </div>
                         )}
                     </div>
-                    {error ? (
-                        <div className="flex flex-col items-center justify-center p-8">
-                            <h3 className="text-red-600 text-xl font-semibold mb-4">Error Loading Prescription</h3>
-                            <p className="text-red-500 text-lg mb-4">{error}</p>
-                            <button
-                                className="primary-button"
-                                onClick={() => window.location.reload()}
-                            >
-                                Retry Loading
-                            </button>
-                        </div>
-                    ) : feedback ? (
+
+                    {feedback ? (
                         <div className="animate-in fade-in duration-1000">
                             <div className="bg-white p-6 rounded-lg shadow-md">
                                 <h3 className="text-xl font-semibold mb-4">AI Analysis Results</h3>
                                 <div className="space-y-4">
                                     {Object.entries(feedback).map(([category, data]: [string, any]) => (
                                         <div key={category} className="border rounded-lg p-4">
-                                            <h4 className="font-semibold capitalize text-lg mb-2">{category.replace(/([A-Z])/g, ' $1')}</h4>
-                                            <div className="mb-2">
-                                                <span className="font-medium">Score: </span>
-                                                <span className={`px-2 py-1 rounded text-sm ${data.score >= 80 ? 'bg-green-100 text-green-800' : data.score >= 60 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'}`}>
-                                                    {data.score}/100
-                                                </span>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h4 className="font-semibold capitalize text-lg">{category.replace(/([A-Z])/g, ' $1')}</h4>
+                                                <StatusBadge score={data.score} showLabel />
                                             </div>
                                             <div className="space-y-2">
                                                 {data.tips?.map((tip: any, index: number) => (
@@ -148,7 +118,7 @@ const Prescription = () => {
                         </div>
                     ) : (
                         <div className="flex flex-col items-center justify-center p-8">
-                            <p className="text-gray-500 text-lg">Loading prescription analysis...</p>
+                            <p className="text-gray-500 text-lg">No analysis available for this prescription.</p>
                         </div>
                     )}
                 </section>
@@ -163,11 +133,12 @@ const Prescription = () => {
                         >
                             ×
                         </button>
-                        <LifestyleTips aiResponse={aiResponse} />
+                        <LifestyleTips aiResponse={prescription.aiResponse} />
                     </div>
                 </div>
             )}
         </main>
-    )
-}
-export default Prescription
+    );
+};
+
+export default Prescription;

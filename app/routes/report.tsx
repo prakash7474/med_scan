@@ -1,3 +1,4 @@
+import type { Route } from "./+types/report";
 import Navbar from "~/components/Navbar";
 import ReportSummary from "~/components/ReportSummary";
 

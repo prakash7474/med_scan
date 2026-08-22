@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import { usePuterStore } from "~/lib/puter";
 import Navbar from "~/components/Navbar";
+import ConfirmDialog from "~/components/ui/ConfirmDialog";
+import LoadingSpinner from "~/components/ui/LoadingSpinner";
+import ErrorMessage from "~/components/ui/ErrorMessage";
 
 const WipeApp = () => {
-    const { auth, isLoading, error, clearError, fs, ai, kv } = usePuterStore();
-    const navigate = useNavigate();
+    const { isLoading, error, clearError, fs } = usePuterStore();
     const [files, setFiles] = useState<FSItem[]>([]);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [wiping, setWiping] = useState(false);
 
     const loadFiles = async () => {
         const files = (await fs.readDir("./")) as FSItem[];
@@ -18,31 +20,28 @@ const WipeApp = () => {
         loadFiles();
     }, []);
 
-    useEffect(() => {
-        if (!isLoading && !auth.isAuthenticated) {
-            navigate("/auth?next=/wipe");
-        }
-    }, [isLoading]);
-
     const handleDelete = async () => {
-        files.forEach(async (file) => {
-            await fs.delete(file.path);
-        });
-        await kv.flush();
-        loadFiles();
-        setShowConfirm(false);
+        setWiping(true);
+        try {
+            files.forEach(async (file) => {
+                await fs.delete(file.path);
+            });
+            const { kv } = usePuterStore.getState();
+            await kv.flush();
+            loadFiles();
+            setShowConfirm(false);
+        } catch (err) {
+            console.error('Wipe failed:', err);
+        } finally {
+            setWiping(false);
+        }
     };
 
     if (isLoading) {
         return (
             <main className="bg-[url('/images/bg-main.svg')] bg-cover min-h-screen">
-                <Snowfall />
                 <Navbar />
-                <section className="main-section py-16">
-                    <div className="flex flex-col items-center justify-center">
-                        <div className="text-lg text-gray-600">Loading...</div>
-                    </div>
-                </section>
+                <LoadingSpinner message="Loading..." />
             </main>
         );
     }
@@ -51,17 +50,7 @@ const WipeApp = () => {
         return (
             <main className="bg-[url('/images/bg-main.svg')] bg-cover min-h-screen">
                 <Navbar />
-                <section className="main-section py-16">
-                    <div className="flex flex-col items-center justify-center">
-                        <div className="text-lg text-red-600">Error: {error}</div>
-                        <button
-                            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md cursor-pointer"
-                            onClick={clearError}
-                        >
-                            Retry
-                        </button>
-                    </div>
-                </section>
+                <ErrorMessage message={error} onRetry={clearError} />
             </main>
         );
     }
@@ -77,11 +66,6 @@ const WipeApp = () => {
                     </div>
 
                     <div className="bg-white rounded-lg shadow-md p-6 mt-8">
-                        <div className="mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800">Authenticated as:</h3>
-                            <p className="text-gray-600">{auth.user?.username}</p>
-                        </div>
-
                         <div className="mb-6">
                             <h3 className="text-lg font-semibold text-gray-800 mb-2">Existing Files:</h3>
                             {files.length > 0 ? (
@@ -100,40 +84,27 @@ const WipeApp = () => {
 
                         <div className="border-t pt-6">
                             <p className="text-sm text-gray-600 mb-4">
-                                Warning: This action will permanently delete all files and data associated with your account. This cannot be undone.
+                                Warning: This action will permanently delete all files and data. This cannot be undone.
                             </p>
                             <button
                                 className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-md cursor-pointer font-semibold transition-colors"
                                 onClick={() => setShowConfirm(true)}
+                                disabled={wiping}
                             >
-                                Wipe App Data
+                                {wiping ? 'Wiping...' : 'Wipe App Data'}
                             </button>
                         </div>
                     </div>
 
                     {showConfirm && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full mx-4">
-                                <h3 className="text-lg font-semibold text-gray-800 mb-4">Confirm Wipe</h3>
-                                <p className="text-gray-600 mb-6">
-                                    Are you sure you want to wipe all app data? This action cannot be undone.
-                                </p>
-                                <div className="flex gap-4">
-                                    <button
-                                        className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-md cursor-pointer transition-colors"
-                                        onClick={() => setShowConfirm(false)}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        className="flex-1 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md cursor-pointer transition-colors"
-                                        onClick={handleDelete}
-                                    >
-                                        Confirm Wipe
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <ConfirmDialog
+                            title="Confirm Wipe"
+                            message="Are you sure you want to wipe all app data? This action cannot be undone."
+                            confirmLabel="Confirm Wipe"
+                            danger
+                            onConfirm={handleDelete}
+                            onCancel={() => setShowConfirm(false)}
+                        />
                     )}
                 </div>
             </section>
