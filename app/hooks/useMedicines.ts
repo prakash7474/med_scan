@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { usePuterStore } from '~/lib/puter';
 import * as medicineService from '~/services/medicineService';
 import type { Medicine } from '~/types';
 
@@ -6,12 +7,14 @@ import type { Medicine } from '~/types';
  * Hook for managing medicine reminders.
  */
 export function useMedicines() {
+    const { puterReady } = usePuterStore();
     const [medicines, setMedicines] = useState<Medicine[]>([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const load = useCallback(async () => {
+        if (!puterReady) return;
         setLoading(true);
         setError(null);
         try {
@@ -22,7 +25,7 @@ export function useMedicines() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [puterReady]);
 
     useEffect(() => {
         load();

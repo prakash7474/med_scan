@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { usePuterStore } from '~/lib/puter';
 import * as settingsService from '~/services/settingsService';
 import type { AppSettings } from '~/types';
 import { DEFAULT_SETTINGS } from '~/types';
@@ -7,11 +8,13 @@ import { DEFAULT_SETTINGS } from '~/types';
  * Hook for managing app settings.
  */
 export function useSettings() {
+    const { puterReady } = usePuterStore();
     const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
 
     const load = useCallback(async () => {
+        if (!puterReady) return;
         setLoading(true);
         try {
             const data = await settingsService.loadSettings();
@@ -22,7 +25,7 @@ export function useSettings() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [puterReady]);
 
     useEffect(() => {
         load();
